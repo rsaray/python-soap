@@ -1,5 +1,5 @@
 from zeep import Client
-from ClientWrapper import ClientWrapper
+from .ClientWrapper import ClientWrapper
 import urllib3
 
 
