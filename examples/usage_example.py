@@ -18,6 +18,8 @@ lu_response = user.call_service(
     'ListUsers',
     searchQuery='admin',
     parameters={})
+
+# new user list information is in array format
 admin = lu_response['PagedResults']['User'][0]
 
 # what has the admin user been watching?
