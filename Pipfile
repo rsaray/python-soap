@@ -7,6 +7,7 @@ verify_ssl = true
 
 [packages]
 panopto-python-soap = {editable = true,path = "."}
+plone-event = "*"
 
 [requires]
 python_version = "3.7"

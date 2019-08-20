@@ -3,6 +3,7 @@ from panopto_api.AuthenticatedClientFactory import AuthenticatedClientFactory
 from panopto_api.ClientWrapper import ClientWrapper
 from datetime import datetime, timedelta
 from math import ceil
+from plone.event import utils
 
 host = 'localhost'
 username = 'admin'
@@ -18,7 +19,9 @@ lu_response = user.call_service(
     'ListUsers',
     searchQuery='admin',
     parameters={})
-admin = lu_response['PagedResults']['User'][0]
+# 'admin' user is guaranteed to exist! pluck it out, excluding any other users that might match the query
+match_pattern = 'admin'  # the span will contain the matching portion of the username
+admin = [r for r in lu_response['PagedResults']['User'] if r['UserKey'] == match_pattern][0]
 
 # what has the admin user been watching?
 page_size = 10
@@ -40,7 +43,7 @@ if gudu_response['TotalNumberResponses'] > 0:
     )
     endRange = datetime.utcnow()
     beginRange = endRange - timedelta(days=7)
-    week_views = [v for v in gudu_response['PagedResponses']['DetailedUsageResponseItem'] if v['Time'] > beginRange]
+    week_views = [v for v in gudu_response['PagedResponses']['DetailedUsageResponseItem'] if v['Time'] > utils.utc(beginRange)]
     if week_views:
         # let's get the sessionId of the first view and see who else has been watching it in the past week
         sessionId = week_views[0]['SessionId']
