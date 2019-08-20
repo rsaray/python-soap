@@ -5,7 +5,7 @@ from version import get_version
 
 
 def readme():
-    with open('README.rst') as f:
+    with open('readme.rst') as f:
         return f.read()
 
 
