@@ -5,7 +5,7 @@ from version import get_version
 
 
 def readme():
-    with open('README.rst') as f:
+    with open('readme.rst') as f:
         return f.read()
 
 
@@ -18,7 +18,6 @@ setup(
     long_description=readme(),
     keywords=['python', 'panopto', 'lambda', 'api', 'soap'],
     install_requires=[
-        're',
         'urllib3',
         'zeep'
     ],

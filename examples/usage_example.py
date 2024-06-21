@@ -3,6 +3,7 @@ from panopto_api.AuthenticatedClientFactory import AuthenticatedClientFactory
 from panopto_api.ClientWrapper import ClientWrapper
 from datetime import datetime, timedelta
 from math import ceil
+from plone.event import utils
 
 host = 'localhost'
 username = 'admin'
@@ -19,7 +20,7 @@ lu_response = user.call_service(
     searchQuery='admin',
     parameters={})
 # 'admin' user is guaranteed to exist! pluck it out, excluding any other users that might match the query
-match_pattern = '<span class="match">admin</span>' # the span will contain the matching portion of the username
+match_pattern = 'admin'  # the span will contain the matching portion of the username
 admin = [r for r in lu_response['PagedResults']['User'] if r['UserKey'] == match_pattern][0]
 
 # what has the admin user been watching?
@@ -42,11 +43,11 @@ if gudu_response['TotalNumberResponses'] > 0:
     )
     endRange = datetime.utcnow()
     beginRange = endRange - timedelta(days=7)
-    week_views = [v for v in gudu_response['PagedResponses']['DetailedUsageResponseItem'] if v['Time'] > beginRange]
+    week_views = [v for v in gudu_response['PagedResponses']['DetailedUsageResponseItem'] if v['Time'] > utils.utc(beginRange)]
     if week_views:
         # let's get the sessionId of the first view and see who else has been watching it in the past week
         sessionId = week_views[0]['SessionId']
-        print 'admin viewed session {} in the past week'.format(sessionId)
+        print('admin viewed session {} in the past week'.format(sessionId))
 
         ssu_response = usage.call_service(
             'GetSessionSummaryUsage',
@@ -58,11 +59,12 @@ if gudu_response['TotalNumberResponses'] > 0:
         view_days = [r for r in ssu_response if r['Views'] > 0]
         for day in sorted(view_days, key=lambda d:d['Time']):
             day_offset = int(ceil((endRange - day['Time'].replace(tzinfo=None)).total_seconds() / (3600 * 24)))
-            print '{} day{} ago: {} unique users viewed {} minutes in {} distinct views'.format(
+            print('{} day{} ago: {} unique users viewed {} minutes in {} distinct views'.format(
                 day_offset,
                 's' if day_offset > 1 else ' ',
                 day['UniqueUsers'],
                 day['MinutesViewed'],
                 day['Views'])
+            )
     else:
-        print 'no admin views in the past week'
+        print('no admin views in the past week')
